@@ -17,7 +17,7 @@ import seagul.envs.bullet
 # env = DummyVecEnv([lambda: env])
 
 num_steps = int(2e6)
-base_dir = "data/pbmj/0"
+base_dir = "data/"
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"

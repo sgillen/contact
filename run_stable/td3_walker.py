@@ -11,15 +11,14 @@ from stable_baselines.common import make_vec_env
 from multiprocessing import Process
 import seagul.envs.bullet
 import json
-import pybulletgym
 
 
 num_steps = int(1e6)
     
 physics_params = {
-    'fixedTimeStep': 0.002,
-    'numSubSteps': 0,
-    'numSolverIterations': 50,
+    'fixedTimeStep': 0.008,
+    'numSubSteps': 4,
+    'numSolverIterations': 5,
     'useSplitImpulse': 1,
     'splitImpulsePenetrationThreshold': -0.03999999910593033,
     'contactBreakingThreshold': 0.02,
@@ -69,7 +68,7 @@ env_config = {"physics_params":physics_params,
 }
 
 
-base_dir = "data_pbmj/td3_fc/"
+base_dir = "data_sgb/td3/"
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"
