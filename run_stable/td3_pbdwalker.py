@@ -17,7 +17,7 @@ from seagul.envs.wrappers.pybullet_physics import PyBulletPhysicsWrapper
 import pybullet as p
 num_steps = int(2e6)
 
-base_dir = "./data_pbp/td3/"
+base_dir = "./data_pbdp/td3/"
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"
@@ -75,8 +75,8 @@ if base_ok == "n":
 physics_params = {
     'fixedTimeStep': 0.008,
     'numSubSteps': 4,
-    'numSolverIterations': 5,
-    #'constraintSolverType': p.CONSTRAINT_SOLVER_LCP_DANTZIG,
+    'numSolverIterations': 200,
+    'constraintSolverType': p.CONSTRAINT_SOLVER_LCP_DANTZIG,
     'globalCFM': 0.000001,
     'solverResidualThreshold': 0.001,
     'numSolverIterations': 5
@@ -89,7 +89,7 @@ dynamics_params = {
 }
 
 env_config = {'physics_params':physics_params, 'dynamics_params':dynamics_params}
-env_kwargs = {'env':gym.make('Walker2DMuJoCoEnv-v0'), 'physics_params':physics_params, 'dynamics_params':dynamics_params}
+env_kwargs = {'env':gym.make('Walker2DBulletEnv-v0'), 'physics_params':physics_params, 'dynamics_params':dynamics_params}
 
 def run_stable(num_steps, save_dir):
 
@@ -130,7 +130,6 @@ def run_stable(num_steps, save_dir):
 if __name__ == "__main__":
     
     start = time.time()
-
     proc_list = []
 
     os.makedirs(trial_dir, exist_ok=False)
