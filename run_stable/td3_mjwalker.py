@@ -11,19 +11,22 @@ from stable_baselines.common import make_vec_env
 from multiprocessing import Process
 import seagul.envs.bullet
 import json
-from gym.envs.mujoco.walker2d import Walker2dEnv
-import pybullet as p
-from stable_baselines.common.vec_env import DummyVecEnv
-from stable_baselines.bench import Monitor
-from shutil import copyfile
 
-num_steps = int(1e4)
+import pybullet as p
+num_steps = int(2e4)
 
 base_dir = "./data_tmp/td3/"
+
+import pybullet as p
+num_steps = int(2e4)
+
+base_dir = "./data_mjw/td3/"
+
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"
 base_ok = input("run will be saved in " + trial_dir + " ok? y/n")
+
 
 xml_file = "/home/sgillen/work/contact/run_stable/assets/walker2d.xml"
 
@@ -65,6 +68,7 @@ def run_stable(num_steps, save_dir):
     )
 
     model.learn(total_timesteps=num_steps)
+    os.makedirs(save_dir, exist_ok=False)
     model.save(save_dir + "/model.zip")
 
 
@@ -72,21 +76,27 @@ if __name__ == "__main__":
     
     start = time.time()
 
+
     proc_list = []
 
+    assert not os.path.exists(trial_dir), "Save name already exists!"
     os.makedirs(trial_dir, exist_ok=False)
     copyfile(xml_file, trial_dir + "walker2d.xml")
 #    with open(trial_dir + "config.json", "w") as config_file:
 #        json.dump(env_config, config_file)
+
+
+    proc_list = []
+
 
     
     for seed in np.random.randint(0, 2 ** 32, 8):
         #    run_stable(int(8e4), "./data/walker/" + trial_name + "_" + str(seed))
 
         save_dir = trial_dir + "/" + str(seed)
+
         os.makedirs(save_dir, exist_ok=False)
 
-        
         p = Process(
             target=run_stable,
             args=(num_steps, save_dir)
@@ -98,9 +108,8 @@ if __name__ == "__main__":
     for p in proc_list:
         print("joining")
         p.join()
-
-
-        
+    # with open(trial_dir + "config.json", "w") as config_file:    
+    #     json.dump(env_config, config_file)
 
     print(f"experiment complete, total time: {time.time() - start}, saved in {save_dir}")
 

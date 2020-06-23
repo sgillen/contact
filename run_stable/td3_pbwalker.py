@@ -1,5 +1,6 @@
 import gym
 import numpy as np
+from stable_baselines.bench import Monitor
 from stable_baselines.td3.policies import MlpPolicy
 from stable_baselines.common.vec_env import DummyVecEnv
 from stable_baselines import TD3
@@ -11,16 +12,19 @@ from stable_baselines.common import make_vec_env
 from multiprocessing import Process
 import seagul.envs.bullet
 import json
-import pybulletgym
-import pybulletgym.envs.mujoco.envs.locomotion.walker2d_env
 from seagul.envs.wrappers.pybullet_physics import PyBulletPhysicsWrapper
+
 import pybullet as p
 from stable_baselines.common.vec_env import DummyVecEnv
 from stable_baselines.bench import Monitor
 
-num_steps = int(2e6)
+from functools import partial
+
+import pybullet as p
 
 base_dir = "./data_pbtime/td3/"
+num_steps = int(2e6)
+
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"
@@ -98,6 +102,36 @@ def run_stable(num_steps, save_dir):
     os.makedirs(save_dir, exist_ok=True)
 
     def make_env():
+
+physics_params = {
+    'fixedTimeStep': 0.008,
+    'numSubSteps': 4,
+    'numSolverIterations': 200,
+    'constraintSolverType': p.CONSTRAINT_SOLVER_LCP_DANTZIG,
+    'globalCFM': 0.000001,
+    'solverResidualThreshold': 0.001,
+    'numSolverIterations': 5
+}
+
+dynamics_params = {
+    'lateralFriction': 0.8,
+    'rollingFriction': 0.1,
+    'spinningFriction': 0.1,
+}
+env_config = {}
+env_config = {'physics_params':physics_params, 'dynamics_params':dynamics_params}
+
+def run_stable(num_steps, save_dir):
+
+    #env = gym.wrappers.TimeLimit(pybulletgym.envs.mujoco.envs.locomotion.walker2d_env.Walker2DMuJoCoEnv,1000)
+    #    env = gym.make(env)
+
+    # env = make_vec_env(pybulletgym.envs.mujoco.envs.locomotion.walker2d_env.Walker2DMuJoCoEnv, n_envs=1, monitor_dir=save_dir, env_kwargs=env_config)
+
+
+    os.makedirs(save_dir, exist_ok=True)
+
+    def make_env():
         env = gym.make("Walker2DBulletEnv-v0")
         env = PyBulletPhysicsWrapper(env, physics_params=physics_params, dynamics_params=dynamics_params)
         env = Monitor(env, filename=save_dir)
@@ -110,7 +144,7 @@ def run_stable(num_steps, save_dir):
     #n_actions = 6
     action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
-    
+
     model = TD3(MlpPolicy,
                 env,
                 action_noise=action_noise,
