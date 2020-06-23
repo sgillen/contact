@@ -15,12 +15,9 @@ import pybulletgym
 import pybulletgym.envs.mujoco.envs.locomotion.walker2d_env
 from seagul.envs.wrappers.pybullet_physics import PyBulletPhysicsWrapper
 import pybullet as p
-from stable_baselines.common.vec_env import DummyVecEnv
-from stable_baselines.bench import Monitor
-
 num_steps = int(2e6)
 
-base_dir = "./data_pbtime/td3/"
+base_dir = "./data_pbdp/td3/"
 trial_name = input("Trial name: ")
 
 trial_dir = base_dir + trial_name + "/"
@@ -73,38 +70,38 @@ if base_ok == "n":
 #     'jointDamping': .1,
 # }
 
+
+
 physics_params = {
-    # 'fixedTimeStep': 0.008,
-    # 'numSubSteps': 4,
-    # 'numSolverIterations': 5,
-    # #'constraintSolverType': p.CONSTRAINT_SOLVER_LCP_DANTZIG,
-    # 'globalCFM': 0.000001,
-    # 'solverResidualThreshold': 0.001,
-    # 'numSolverIterations': 5
+    'fixedTimeStep': 0.008,
+    'numSubSteps': 4,
+    'numSolverIterations': 200,
+    #'constraintSolverType': p.CONSTRAINT_SOLVER_LCP_DANTZIG,
+    #'globalCFM': 0.000001,
+    'solverResidualThreshold': 0.001,
+    'numSolverIterations': 200
 }
 
 dynamics_params = {
-    'lateralFriction': 0.75,
-    # 'rollingFriction': 0.1,
-    # 'spinningFriction': 0.1,
+    'lateralFriction': 0.8,
+    'rollingFriction': 0.1,
+    'spinningFriction': 0.1,
 }
 
 env_config = {'physics_params':physics_params, 'dynamics_params':dynamics_params}
+env_kwargs = {'env':gym.make('Walker2DBulletEnv-v0'), 'physics_params':physics_params, 'dynamics_params':dynamics_params}
 
-# env_config = {'physics_params':physics_params, 'dynamics_params':dynamics_params}
-# env_kwargs = {'env':gym.make('Walker2DMuJoCoEnv-v0'), 'physics_params':physics_params, 'dynamics_params':dynamics_params}
+def run_stable(num_steps, save_dir):
 
-def run_stable(num_steps, save_dir):    
-    os.makedirs(save_dir, exist_ok=True)
+    #env = gym.wrappers.TimeLimit(pybulletgym.envs.mujoco.envs.locomotion.walker2d_env.Walker2DMuJoCoEnv,1000)
+    #    env = gym.make(env)
 
-    def make_env():
-        env = gym.make("Walker2DBulletEnv-v0")
-        env = PyBulletPhysicsWrapper(env, physics_params=physics_params, dynamics_params=dynamics_params)
-        env = Monitor(env, filename=save_dir)
-        return env
+    # env = make_vec_env(pybulletgym.envs.mujoco.envs.locomotion.walker2d_env.Walker2DMuJoCoEnv, n_envs=1, monitor_dir=save_dir, env_kwargs=env_config)
 
-    env = DummyVecEnv([make_env])
-    #env = make_vec_env(env, n_envs=1, monitor_dir=save_dir, env_kwargs=env_kwargs)
+    
+    env = PyBulletPhysicsWrapper
+
+    env = make_vec_env(env, n_envs=1, monitor_dir=save_dir, env_kwargs=env_kwargs)
 
     n_actions = env.action_space.shape[-1]
     #n_actions = 6
@@ -133,7 +130,6 @@ def run_stable(num_steps, save_dir):
 if __name__ == "__main__":
     
     start = time.time()
-
     proc_list = []
 
     os.makedirs(trial_dir, exist_ok=False)
