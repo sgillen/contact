@@ -30,8 +30,6 @@ xml_file = "/home/sgillen/work/contact/run_stable/assets/walker2d.xml"
 if base_ok == "n":
     exit()
 
-
-
 def run_stable(num_steps, save_dir):    
 
     os.makedirs(save_dir, exist_ok=False)
@@ -72,8 +70,6 @@ def run_stable(num_steps, save_dir):
 if __name__ == "__main__":
     
     start = time.time()
-
-
     proc_list = []
 
     assert not os.path.exists(trial_dir), "Save name already exists!"
@@ -106,4 +102,3 @@ if __name__ == "__main__":
     #     json.dump(env_config, config_file)
 
     print(f"experiment complete, total time: {time.time() - start}, saved in {save_dir}")
-
